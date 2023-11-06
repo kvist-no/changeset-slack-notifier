@@ -42,8 +42,12 @@ func main() {
 
 	jsonOutput, _ := json.Marshal(matrix)
 
+	jsonOutputStr := string(jsonOutput)
+	jsonOutputStr = "release-note-matrix=" + jsonOutputStr
+
+	// magic env from github actions
 	fileName := os.Getenv("GITHUB_OUTPUT")
-	_ = os.WriteFile(fileName, jsonOutput, 0441)
+	_ = os.WriteFile(fileName, []byte(jsonOutputStr), 0441)
 }
 
 type Version struct {
