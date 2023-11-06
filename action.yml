@@ -1,0 +1,9 @@
+name: 'Changeset Release Note Generator'
+description: 'Generate a release note from a set of changesets'
+inputs: {}
+outputs:
+  release-note-matrix:
+    description: 'The generated release note matrix'
+runs:
+  using: 'docker'
+  image: 'Dockerfile'

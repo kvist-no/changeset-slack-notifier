@@ -1,0 +1,1 @@
+This file is only to test that the file filtering is working as intended.
