@@ -12,4 +12,4 @@ FROM alpine:latest
 
 COPY --from=golang /dist .
 
-CMD ["/changeset-summary-generator-action"]
+CMD ["/dist"]
