@@ -1,9 +1,22 @@
 name: 'Changeset Release Note Generator'
 description: 'Generate a release note from a set of changesets'
-inputs: {}
+inputs:
+  slack-token:
+    description: 'Slack token to send message'
+    required: true
+  slack-channel:
+    description: 'Which channel ID to send the message to'
+    required: true
+  headline:
+    description: 'Header message to send alongside the release notes'
+    required: true
 outputs:
   release-note-matrix:
     description: 'The generated release note matrix'
 runs:
   using: 'docker'
   image: 'Dockerfile'
+  args:
+    - ${{ inputs.slack-token }}
+    - ${{ inputs.slack-channel }}
+    - "${{ inputs.headline }}"

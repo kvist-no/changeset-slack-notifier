@@ -1,11 +1,12 @@
 package main
 
 import (
-	"encoding/json"
 	"fmt"
 	"os"
 	"path/filepath"
 	"regexp"
+
+	"github.com/slack-go/slack"
 )
 
 type Matrix struct {
@@ -13,6 +14,11 @@ type Matrix struct {
 }
 
 func main() {
+	// This is passed in by action inputs
+	token := os.Args[1]
+	channelId := os.Args[2]
+	headline := os.Args[3]
+
 	// Define the regex pattern
 	pattern := `(\w+-){2}\w+\.md`
 	regex := regexp.MustCompile(pattern)
@@ -38,16 +44,43 @@ func main() {
 		}
 	}
 
-	matrix := Matrix{Include: parsedChangesets}
+	api := slack.New(token, slack.OptionDebug(true))
 
-	jsonOutput, _ := json.Marshal(matrix)
+	releaseNoteBlocks := []slack.Block{}
 
-	jsonOutputStr := string(jsonOutput)
-	jsonOutputStr = "release-note-matrix=" + jsonOutputStr
+	releaseNoteBlocks = append(releaseNoteBlocks,
+		slack.HeaderBlock{
+			Type: "header",
+			Text: &slack.TextBlockObject{
+				Type:  "plain_text",
+				Text:  headline,
+				Emoji: true,
+			},
+		},
+	)
 
-	// magic env from github actions
-	fileName := os.Getenv("GITHUB_OUTPUT")
-	_ = os.WriteFile(fileName, []byte(jsonOutputStr), 0441)
+	for _, releaseNote := range parsedChangesets {
+		releaseNoteBlocks = append(releaseNoteBlocks, slack.ContextBlock{
+			Type: "context",
+			ContextElements: slack.ContextElements{
+				Elements: []slack.MixedElement{
+					slack.TextBlockObject{
+						Type: "mrkdwn",
+						Text: releaseNote.Message,
+					},
+				},
+			},
+		})
+	}
+
+	_, _, _, err = api.SendMessage(channelId, slack.MsgOptionBlocks(
+		releaseNoteBlocks...,
+	))
+
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
 }
 
 type Version struct {
