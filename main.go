@@ -102,7 +102,7 @@ func parseChangesetFile(filePath string) Changeset {
 
 	fileContentStr := string(fileContent)
 
-	versionPattern := regexp.MustCompile("'(.+)': (patch|minor|major)")
+	versionPattern := regexp.MustCompile("['\"](.+)['\"]: (patch|minor|major)")
 	versions := versionPattern.FindAllStringSubmatch(fileContentStr, -1)
 
 	changeset := Changeset{}
