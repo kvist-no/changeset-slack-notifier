@@ -5,6 +5,7 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
+	"strings"
 
 	"github.com/slack-go/slack"
 )
@@ -60,17 +61,17 @@ func main() {
 	)
 
 	for _, releaseNote := range parsedChangesets {
-		releaseNoteBlocks = append(releaseNoteBlocks, slack.ContextBlock{
-			Type: "context",
-			ContextElements: slack.ContextElements{
-				Elements: []slack.MixedElement{
-					slack.TextBlockObject{
-						Type: "mrkdwn",
-						Text: releaseNote.Message,
-					},
-				},
-			},
-		})
+		var versionStrings []string
+		for _, version := range releaseNote.Versions {
+			versionStrings = append(versionStrings, fmt.Sprintf("`%s`", version.Pkg))
+		}
+
+		versionString := strings.Join(versionStrings, " ")
+
+		releaseNoteBlocks = append(releaseNoteBlocks, slack.NewSectionBlock(
+			&slack.TextBlockObject{Type: "mrkdwn", Text: versionString + "\n" + releaseNote.Message},
+			nil, nil,
+		))
 	}
 
 	_, _, _, err = api.SendMessage(channelId, slack.MsgOptionBlocks(
