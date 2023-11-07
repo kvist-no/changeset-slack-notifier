@@ -10,9 +10,6 @@ inputs:
   headline:
     description: 'Header message to send alongside the release notes'
     required: true
-outputs:
-  release-note-matrix:
-    description: 'The generated release note matrix'
 runs:
   using: 'docker'
   image: 'Dockerfile'
