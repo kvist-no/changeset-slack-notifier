@@ -10,10 +10,6 @@ import (
 	"github.com/slack-go/slack"
 )
 
-type Matrix struct {
-	Include []Changeset `json:"include"`
-}
-
 func main() {
 	// This is passed in by action inputs
 	token := os.Args[1]
@@ -43,6 +39,10 @@ func main() {
 			fmt.Sprintln("Processing changeset", file.Name())
 			parsedChangesets = append(parsedChangesets, parseChangesetFile(filepath.Join(directory, file.Name())))
 		}
+	}
+
+	if len(parsedChangesets) == 0 {
+		return
 	}
 
 	api := slack.New(token, slack.OptionDebug(true))
